@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Analysis</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+
+<!-- Display Total Sales by Year -->
+<div>
+    <h2>Total Sales by Year</h2>
+    <div id="chart"></div>
+    {{ chart_html|safe }}
+</div>
+
+</body>
+</html>
+
+<script>
+// JavaScript code for rendering Plotly chart
+Plotly.newPlot('chart', JSON.parse('{{ chart_json|safe }}'), {});
+</script>
+
