@@ -46,6 +46,12 @@ def display_pivot_tables(request):
         total_doc_num_count = cursor.fetchone()[0]
 
 
+    count_query1 = 'SELECT COUNT(DISTINCT CardName) AS TotalCustomers FROM (SELECT DocNum FROM ORDR WHERE YEAR(DocDate) = 2023 AND MONTH(DocDate) = 9) '
+    with connetion.cursor() as cursor:
+        cursor.execute(count_query1)
+        total_customers = cursor.fetchall()[0]
+
+
     
 
 # Assuming you have already executed the SQL queries and obtained results1 and results2
@@ -75,7 +81,7 @@ def display_pivot_tables(request):
     # render HTML Templates with the pivot tables 
     # return render(request, 'analysis/pivot_tables.html', {'pivot_table1': pivot_table1, 'pivot_table2': pivot_table2})
 
-    return render(request, 'analysis/results.html', {'results1': results1, 'results2': results2,  'total_doc_num_count': total_doc_num_count})
+    return render(request, 'analysis/results.html', {'total_doc_num_count': total_doc_num_count, 'total_customers': total_customers})
 
 from django.shortcuts import render
 import pandas as pd

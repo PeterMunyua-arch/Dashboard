@@ -4,111 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales and Purchases Reports</title>
-    <style>
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        th, td {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-
-        th {
-            background-color: #f2f2f2;
-        }
-    </style>
 </head>
+
 <body>
-    <table>
-        <tr>
-            {% for header in results1.0.keys %}
-               <th>{{ header }}</th>
-            {% endfor %}
-        </tr>
 
-        {% for row in results1 %}
-           <tr>
-            {% for value in row.values %}
-                <td>{{ value }}</td>
-            {% endfor %}
-           </tr>
-        {% endfor %}
-    </table>
+    <div>
+        <h2>Total DocNum Count: {{ total_doc_num_count }}</h2>
+    </div>
 
-    <table>
-        <tr>
-            {% for header in results2.0.keys %}
-               <th>{{ header }}</th>
-            {% endfor %}
-        </tr>
-        
-
-        {% for row in results1 %}
-           <tr>
-            {% for value in row.values %}
-                <td>{{ value }}</td>
-            {% endfor %}
-           </tr>
-        {% endfor %}
-    </table>
-
-
-
-    <a href="analysis/sales_analysis.html"></a>
-    <!-- Display results1 in a table -->
-<table border="1">
-    <thead>
-        <tr>
-            <th>ORDR_PostDate</th>
-            <th>ORDR_num_documentsS</th>
-            <th>ORDR_Customer</th>
-            <th>ORDR_C_Code</th>
-            <th>RDR1_Quantity</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in results1 %}
-            <tr>
-                <td>{{ row.PostDate }}</td>
-                <td>{{ num_documents }}</td>
-                <td>{{ row.Customer }}</td>
-                <td>{{ row.C_Code }}</td>
-                <td>{{ row.Quantity }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<table border="1">
-    <thead>
-        <tr>
-            <th>OPOR_PostDate</th>
-            <th>OPOR_DocNum</th>
-            <th>OPOR_Customer</th>
-            <th>OPOR_C_Code</th>
-            <th>OITM_ItemName</th>
-            <th>POR1_Quantity</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for row in results2 %}
-            <tr>
-                <td>{{ row.PostDate }}</td>
-                <td>{{ row.DocNum }}</td>
-                <td>{{ row.Customer }}</td>
-                <td>{{ row.C_Code }}</td>
-                <td>{{ row.ItemName }}</td>
-                <td>{{ row.Quantity }}</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
-
-<h2>Total DocNum Count: {{ total_doc_num_count }}</h2>
-
-
+    <div>
+        <h1>Total customers: {{ total_customers }}</h1>
+    </div>
 </body>
 </html>
