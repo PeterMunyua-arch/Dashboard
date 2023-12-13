@@ -4,16 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sales and Purchases Reports</title>
+    <style>
+        header {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            height: 20vh;
+            margin: 0;
+            align-content: center;
+        }
+
+        .box {
+            margin: 10px;
+            width: 200px;
+            text-align: center;
+        }
+
+        table {
+            align-items: center;
+            margin: 0;
+            padding: 0%;
+            border-collapse:collapse ;
+            
+        }
+
+        td {
+            padding: 5px;
+        }
+
+    </style>
 </head>
 
 <body>
 
-    <div>
-        <h2>Total DocNum Count: {{ total_doc_num_count }}</h2>
-    </div>
+    <header>
+        <div class="box" style="background-color: rgb(184, 68, 68);  font-size: 10px; ">
+            <h1>Total DocNum <br> {{ total_doc_num_count }}</h1>
+        </div>
+    
+        <div class="box" style="background-color: rgb(107, 78, 133);  font-size: 10px; ">
+            <h1>Total customers <br> {{ total_customers }}</h1>
+        </div>
+    
+        <div class="box" style="background-color: rgb(66, 116, 138);  font-size: 10px; ">
+            <h1>Total Quantity <br> {{ total_quantity }}</h1>
+        </div>
+    </header>
+
+    
 
     <div>
-        <h1>Total customers: {{ total_customers }}</h1>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ORDR_PostDate</th>
+                    <th>ORDR_Customer</th>
+                    <th>ORDR_C_Code</th>
+                    <th>RDR1_Quantity</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in results1 %}
+                    <tr>
+                        <td>{{ row.PostDate }}</td>
+                        <td>{{ row.Customer }}</td>
+                        <td>{{ row.C_Code }}</td>
+                        <td>{{ row.Quantity }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
+
+
+    <script>
+        setInterval(function() {
+            location.reload();
+        }, 5000);
+    </script>
+    
+    
+
 </body>
 </html>

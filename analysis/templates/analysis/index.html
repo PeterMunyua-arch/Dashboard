@@ -9,5 +9,13 @@
     <h1>Welcome to index page</h1>
     <a href="results.html"></a>
     <a href="sales_analysis.html"></a>
+    <script>
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/updates/');
+
+        socket.onmessage = fuction (event);{
+            const data = JSON.parse(event.data);
+            console.log(data.message);
+        };
+    </script>
 </body>
 </html>
