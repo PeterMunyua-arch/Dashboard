@@ -50,7 +50,7 @@ def display_pivot_tables(request):
         total_customers = cursor.fetchone()[0]
 
 
-    count_query2 = 'SELECT COUNT(DISTINCT Quantity) AS TotalItems FROM (SELECT ORDR.DocDate AS PostDate,  DocNum, CardName AS Customer, ORDR.CardCode AS C_Code, Quantity FROM ORDR JOIN RDR1  ON ORDR.DocEntry = RDR1.DocEntry JOIN OITM ON RDR1.ItemCode = OITM.ItemCode  WHERE year(ORDR.DocDate) = 2023 AND month(ORDR.DocDate) = 12 GROUP BY ORDR.DocDate, DocNum, CardName, ORDR.CardCode, Quantity) AS CombinedDocs'
+    count_query2 = 'SELECT SUM(Quantity) AS TotalItems FROM (SELECT ORDR.DocDate AS PostDate,  DocNum, CardName AS Customer, ORDR.CardCode AS C_Code, Quantity FROM ORDR JOIN RDR1  ON ORDR.DocEntry = RDR1.DocEntry JOIN OITM ON RDR1.ItemCode = OITM.ItemCode  WHERE year(ORDR.DocDate) = 2023 AND month(ORDR.DocDate) = 12 GROUP BY ORDR.DocDate, DocNum, CardName, ORDR.CardCode, Quantity) AS CombinedDocs'
     with connection.cursor() as cursor:
         cursor.execute(count_query2)
         total_quantity = cursor.fetchone()[0]
@@ -71,14 +71,9 @@ def display_pivot_tables(request):
         total_docs = cursor.fetchone()[0]
 
 
-    
-
 
     connection.close()
 
     return render(request, 'analysis/results.html', {'total_doc_num_count': total_doc_num_count, 'total_customers': total_customers, 'total_quantity': total_quantity,
                                                      'total_cardcode': total_cardcode,  'results1': results1, 'total_products': total_products, 'total_docs': total_docs })
-
-
-
 
