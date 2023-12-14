@@ -9,7 +9,6 @@ instalations required:
 4. git cmd
 5. channels
 6. pyodbc
-
 7.     count_query10 = "exec PTL_Order_Tracker_Report '20231213', '20231213'"
     with connection.cursor() as cursor:
         cursor.execute(count_query10)
