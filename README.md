@@ -35,4 +35,28 @@ instalations required:
    # with connection.cursor() as cursor:
        # cursor.execute(count_query1)
        # total_customers = cursor.fetchone()[0] 'total_invoices': total_invoices, 'total_customers': total_customers,
+
+
+   count_query11 = """
+    DECLARE @TotalInvoices INT;
+    EXEC dbo.PTL_Order_Tracker_Report '20231213', '20231213';
+    SELECT @TotalInvoices AS TotalInvoices;
+"""
+
+with connection.cursor() as cursor:
+    cursor.execute(count_query11)
+    total_invoices = cursor.fetchone()[0]
+
+
+count_query11 = "DECLARE @TotalInvoices INT; EXEC @TotalInvoices = PTL_Order_Tracker_Report '20231213', '20231213'; SELECT @TotalInvoices AS TotalInvoices;"
+
+with connection.cursor() as cursor:
+    cursor.execute(count_query11)
+    total_invoices = cursor.fetchone()[0]
+
+# Now you can use total_invoices in your code
+
+
+count_query11 = "DECLARE @TotalInvoices INT; EXEC @TotalInvoices = PTL_Order_Tracker_Report '20231213', '20231213'; SELECT @TotalInvoices AS TotalInvoices;"
+
    
