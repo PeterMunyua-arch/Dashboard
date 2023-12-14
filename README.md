@@ -8,3 +8,5 @@ instalations required:
 3. anaconda
 4. git cmd
 5. channels
+6. pyodbc
+   
