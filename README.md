@@ -229,4 +229,95 @@ with connection.cursor() as cursor:
 
 count_query11 = "DECLARE @TotalInvoices INT; EXEC @TotalInvoices = PTL_Order_Tracker_Report '20231213', '20231213'; SELECT @TotalInvoices AS TotalInvoices;"
 
+
+
+
+
+
+
+def view(request):
+    server = 'PHSL-SAPB1-1'
+    database = 'zz_ptl_test'
+    uid = 'sa'
+    pwd = 'B1Admin@123'
+    trusted_connection = 'no'
+
+    connection = connect_to_database(server, database, uid, pwd, trusted_connection)
+    with connection.cursor() as cursor:
+        # Execute the stored procedure with parameters
+        cursor.execute(" exec PTL_Order_Tracker_Report '20231213', '20231213' ")
+
+        # Fetch the results from the stored procedure
+        result_set = cursor.fetchall()
+
+    # Extracting specific fields from the result set
+    data_to_display = [
+        {
+            'customer_name': row[4],       # Assuming the 5th column is 'Customer Name'
+            'invoice_number': row[14],     # Assuming the 15th column is 'Invoice No'
+            'posting_date': row[3],        # Assuming the 4th column is 'SO Posting Date'
+            'quantity': row[12],           # Assuming the 13th column is 'Quantity'
+        }
+        for row in result_set
+    ]
+
+    cursor.execute("""
+            SELECT
+                COUNT(DISTINCT DocNum) AS DocNumCount,
+                SUM(Quantity) AS QuantityCount
+            FROM (
+                exec PTL_Order_Tracker_Report '20231213', '20231213'
+            ) AS SubqueryResult
+        """)
+
+    counts = cursor.fetchone()
+    docnum_count = counts[0]
+    quantity_count = counts[1]
+
+    # Calculate counts
+    # docnum_count = len(set(row[1] for row in result_set))  # Assuming the 2nd column is 'DocNum' 'docnum_count': docnum_count, 'quantity_count': quantity_count
+    # quantity_count = sum(int(row[12]) for row in result_set)    # Assuming the 13th column is 'Quantity'
+    # Assuming the 13th column is 'Quantity'
+
+    return render(request, 'analysis/count.html', {'data_to_display': data_to_display, 'quantity_count': quantity_count, 'docnum_count': docnum_count})
+
+
+
+<!-- your_template.html -->
+<html>
+<head>
+    <title>Your Template</title>
+</head>
+<body>
+    <h1>Data to Display</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Customer Name</th>
+                <th>Invoice Number</th>
+                <th>Posting Date</th>
+                <th>Quantity</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for data in data_to_display %}
+                <tr>
+                    <td>{{ data.customer_name }}</td>
+                    <td>{{ data.invoice_number }}</td>
+                    <td>{{ data.posting_date }}</td>
+                    <td>{{ data.quantity }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2>Counts</h2>
+    <p>DocNum Count: {{ docnum_count }}</p>
+    <p>Quantity Count: {{ quantity_count }}</p>
+</body>
+</html>
+
+
+
+
    
