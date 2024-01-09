@@ -37,52 +37,51 @@
 </head>
 
 <body>
+  
 
     <header>
-        <div class="box" style="background-color: rgb(184, 68, 68);  font-size: 15px; ">
-            <h1>Total DocNum <br> {{ total_doc_num_count }}</h1>
-        </div>
-    
-        <div class="box" style="background-color: rgb(107, 78, 133);  font-size: 15px; ">
-            <h1>Total custom <br> {{ total_customers }}</h1>
-        </div>
-    
-        <div class="box" style="background-color: rgb(66, 116, 138);  font-size: 15px; ">
-            <h1>Total Quantity <br> {{ total_quantity }}</h1>
-        </div>
+        <!-- Display counts in the provided HTML structure -->
+        
+<div class="box" style="background-color: rgb(107, 78, 133); font-size: 15px;">
+    <h1>Total SeriesName:  <br> {{ series_count }} </h1>
+</div>
 
-        <div class="box" style="background-color: rgb(147, 155, 67);  font-size: 15px; ">
-            <h1>Total Cardcode <br> {{ total_cardcode }}</h1>
-        </div>
+<div class="box" style="background-color: rgb(66, 116, 138); font-size: 15px;">
+    <h1>Total Customers: <br> {{ customers }} </h1>
+</div>
 
-        <div class="box" style="background-color: rgb(159, 62, 104);  font-size: 15px; ">
-            <h1>Total Products <br> {{ total_products }}</h1>
-        </div>
-        <div class="box" style="background-color: rgb(57, 49, 164);  font-size: 15px; ">
-            <h1>Total Docs <br> {{ total_docs }}</h1>
-        </div>
+<div class="box" style="background-color: rgb(147, 155, 67); font-size: 15px;">
+    <h1>Card Count: <br> {{ card_count }} </h1>
+</div>
+
+<div class="box" style="background-color: rgb(159, 62, 104); font-size: 15px;">
+    <h1>Total Delivery Doc Num:  <br> </h1>
+</div>
+
+<div class="box" style="background-color: rgb(57, 49, 164); font-size: 15px;">
+    <h1>Total Invoice No:  <br>  </h1>
+</div>
+
     </header>
 <br>
 <br>
     
 
-    <div style="align-items: center; display: flex; margin-left: 250px;">
+    <div style="align-items: center; display: flex; margin-left: 0;">
         <table border="1">
             <thead>
                 <tr>
-                    <th>ORDR_PostDate</th>
-                    <th>ORDR_Customer</th>
-                    <th>ORDR_C_Code</th>
-                    <th>RDR1_Quantity</th>
+                    {% for column in columns %}
+                        <th>{{ column }}</th>
+                    {% endfor %}
                 </tr>
             </thead>
             <tbody>
-                {% for row in results1 %}
+                {% for order in orders %}
                     <tr>
-                        <td>{{ row.PostDate }}</td>
-                        <td>{{ row.Customer }}</td>
-                        <td>{{ row.C_Code }}</td>
-                        <td>{{ row.Quantity }}</td>
+                        {% for column in order %}
+                            <td>{{ column }}</td>
+                        {% endfor %}
                     </tr>
                 {% endfor %}
             </tbody>

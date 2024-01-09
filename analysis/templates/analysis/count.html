@@ -1,0 +1,130 @@
+<!-- your_template.html -->
+<html>
+<head>
+    <title>Your Template</title>
+
+    <style>
+        header {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+        height: 20vh;
+        margin-left: 0px;
+        align-content: center;
+    }
+
+    .box {
+        margin: 10px;
+        width: 200px;
+        text-align: center;
+        height: 150px;
+    }
+
+    table {
+        align-items: center;
+        margin: 10;
+        padding: 0%;
+        border-collapse:collapse ;
+        
+    }
+
+    td {
+        padding: 5px;
+    }
+    </style>
+
+
+
+</head>
+<body>
+
+    <header>
+        <!-- Display counts in the provided HTML structure -->
+        
+<div class="box" style="background-color: rgb(243, 128, 52); font-size: 16px;">
+    <h1>NOT APDD  <br> <br> </h1>
+    <div><h1>20</h1></div>
+</div>
+
+<div class="box" style="background-color: rgb(134, 237, 170); font-size: 16px;">
+    <h1>APPROVED ORDERS <br>  </h1>
+    <div><h1>10</h1></div>
+</div>
+
+<div class="box" style="background-color: rgb(219, 180, 98); font-size: 15px;">
+    <h1>PICKING <br> <br> </h1>
+    <div><h1>30</h1></div>
+</div>
+
+<div class="box" style="background-color: rgb(134, 237, 170); font-size: 15px;">
+    <h1> PICKED <br> <br>  </h1>
+    <div><h1>40</h1></div>
+</div>
+
+<div class="box" style="background-color: rgb(219, 180, 98); font-size: 15px;">
+    <h1>PENDING INVOCING <br>  </h1>
+    <div><h1>50</h1></div>
+</div>
+
+<div class="box" style="background-color: rgb(134, 237, 170); font-size: 15px;">
+    <h1>INVOICING <br> <br> </h1>
+    <div><h1>60</h1></div>
+</div>
+
+<div class="box" style="background-color: rgb(225, 16, 19); font-size: 15px;">
+    <h1>REJECTED <br> <br></h1>
+    <div><h1>70</h1></div>
+</div>
+
+    </header>
+<br>
+<br>
+
+    <div  style="align-items: center; display: flex; margin-left: 10%;">
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>Order Date</th>
+                    <th>Order No.</th>
+                    <th>Customer Name</th>
+                    <th>Time Order Received</th>
+                    <th>Posting Time</th>
+                    <th>Created By</th>
+                    <th>Delivery No.</th>
+                    <th>Delivery DateTime</th>
+                    <th>Invoice No.</th>
+                    <th>Invoice Date</th>
+                    <th>Invoice Time</th>
+                    <th>% Supplied</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in data_to_display %}
+                    <tr>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <td>{{ data.customer_name }}</td>
+                        <td>{{ data.invoice_number }}</td>
+                        <td>{{ data.posting_date }}</td>
+                        <td>{{ data.quantity }}</td>
+
+    
+</body>
+</html>
