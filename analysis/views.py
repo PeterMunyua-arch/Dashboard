@@ -5,6 +5,7 @@ from django.shortcuts import render
 import pyodbc
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+import datetime
 
 def connect_to_database(server, database, uid, pwd, trusted_connection=False):
     connection_string = f"Driver={{SQL Server}};Server={server};Database={database};UID={uid};PWD={pwd};Trusted_Connection=no;"
@@ -121,25 +122,162 @@ def view(request):
         # Fetch the results from the stored procedure
         result_set = cursor.fetchall()
 
+
     # Extracting specific fields from the result set
+   
     data_to_display = [
+        
         {
-            'customer_name': row[4],       # Assuming the 5th column is 'Customer Name'
-            'invoice_number': row[14],     # Assuming the 15th column is 'Invoice No'
-            'posting_date': row[3],        # Assuming the 4th column is 'SO Posting Date'
-            'quantity': row[12],           # Assuming the 13th column is 'Quantity'
+            'Order_Date': row[11].strftime("%Y-%m-%d") if row[11] else None,       # Assuming the 5th column is 'Customer Name'
+            'Order_No': row[0],     # Assuming the 15th column is 'Invoice No'
+            'Customer_Name': row[4],        # Assuming the 4th column is 'SO Posting Date'
+            'Time_OrderReceived': row[6],
+            'Posting_Time': row[12],
+            'Created_By': row[10],
+            'Delivery_No': row[14],
+            'Delivery_DateTime': row[16],
+            'Invoice_No': row[19],
+            'Invoice_Date': row[20].strftime("%Y-%m-%d") if row[20] else None,
+            'Invoice_Time': row[22],
+            'Percentage_Supplied': f"{round(row[9], 2)}%"
+                              # Assuming the 13th column is 'Quantity'
         }
         for row in result_set
+        
     ]
 
+    count_query1 = """ SELECT COUNT(*) as ApprovedCount FROM (
+                    SELECT DISTINCT T0.[DocEntry], T0.Draftentry,T0.[WddCode],T0.[DocDate],T1.[CardName], T0.[Status],  Case when T0.[Status]='W' then 'Pending' 
+                    When T0.[Status]='Y' then 'Approved' when T0.[Status]='N' then 'Rejected' When T0.[Status]='A' then 'Generated' else 'Null' end as State
+                    ,CASE WHEN LEN(T0."CreateTime") = 6 THEN LEFT(T0."CreateTime", 2) + ':' + RIGHT(LEFT(T0."CreateTime", 4),2)
+                    WHEN LEN(T0."CreateTime") = 5 THEN LEFT(T0."CreateTime",1) + ':' + RIGHT(LEFT(T0."CreateTime",3),2) 
+                    ELSE LEFT(T0."CreateTime",1) + ':' + RIGHT(T0."CreateTime",2) END AS 'Time'
+                    FROM OWDD T0 
+                    INNER JOIN ODRF T1 ON T0.[Draftentry]=T1.[DocEntry]
+                    WHERE T0.[CreateDate]='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112) 
+                    and  T0.[ObjType] =17 
+                    and T0.[Status] = 'Y')A """
+    with connection.cursor() as cursor:
+        cursor.execute(count_query1)
+        approved = cursor.fetchone()
+
+    approved = approved[0] if approved else None
+
+    count_query2 = """ SELECT COUNT(*) as NOTAPPROVED FROM (
+                   SELECT DISTINCT T0.[DocEntry], T0.Draftentry,T0.[WddCode],T0.[DocDate],T1.[CardName], T0.[Status],  Case when T0.[Status]='W' then 'Pending' 
+                   When T0.[Status]='Y' then 'Approved' when T0.[Status]='N' then 'Rejected' When T0.[Status]='A' then 'Generated' else 'Null' end as State
+                   ,CASE WHEN LEN(T0."CreateTime") = 6 THEN LEFT(T0."CreateTime", 2) + ':' + RIGHT(LEFT(T0."CreateTime", 4),2)
+                   WHEN LEN(T0."CreateTime") = 5 THEN LEFT(T0."CreateTime",1) + ':' + RIGHT(LEFT(T0."CreateTime",3),2) 
+                   ELSE LEFT(T0."CreateTime",1) + ':' + RIGHT(T0."CreateTime",2) END AS 'Time'
+                   FROM OWDD T0 
+                   INNER JOIN ODRF T1 ON T0.[Draftentry]=T1.[DocEntry]
+                   WHERE T0.[CreateDate]='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112) 
+                   and  T0.[ObjType] =17 
+                   and T0.[Status] = 'W')A """
+    with connection.cursor() as cursor:
+        cursor.execute(count_query2)
+        not_approved = cursor.fetchone()
+
+    not_approved =  not_approved[0] if  not_approved else None
+
+
+
+    count_query3 = """ SELECT COUNT([Order Number])[picking] from 
+                   (SELECT DISTINCT T0.[DocNum][Order Number]
+                   FROM ODLN T0  
+                   WHERE T0.[Series] not in (216,205,192) and T0.DocStatus='o' and  T0.DocDate='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112)
+                   )A """
+    with connection.cursor() as cursor:
+        cursor.execute(count_query3)
+        picking = cursor.fetchone()
+
+    picking = picking[0] if picking else None
+
+
+    count_query4 = """ SELECT COUNT([Order Number])[picked] from 
+                   (SELECT DISTINCT T0.[DocNum][Order Number]
+                    FROM ODLN T0  
+
+                    WHERE T0.[Series] not in (216,205,192) and T0.DocStatus='c' and  T0.DocDate='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112)
+                   )A """
+    with connection.cursor() as cursor:
+        cursor.execute(count_query4)
+        Picked = cursor.fetchone()
+
+    Picked = Picked[0] if Picked else None
+
+
+    count_query5 = """ SELECT SUM([Not Invoiced])[Pending Invoice] FROM (
+                   SELECT COUNT([Order Number])[Not Invoiced] from 
+                   (
+                   SELECT DISTINCT T0.[DocNum][Order Number]
+                   FROM ORDR T0  
+
+                   WHERE T0.[Series] not in (216,205,192) and T0.DocStatus='o' and  T0.DocDate='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112)
+                   )A
+
+
+                  UNION ALL
+
+                  SELECT COUNT([Order Number])[Open invoices] from 
+                  (
+                  SELECT DISTINCT T0.[DocNum][Order Number]
+                  FROM OINV T0  
+
+                  WHERE T0.[Series] <>183  and T0.DocDate='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112)
+                  )A
+
+                  )M """
+    with connection.cursor() as cursor:
+        cursor.execute(count_query5)
+        pending = cursor.fetchone()
+
+    pending = pending[0] if pending else None
+
+    count_query6 = """ SELECT COUNT([Order Number])[Open invoices] from 
+                      (
+                      SELECT DISTINCT T0.[DocNum][Order Number]
+                      FROM OINV T0  
+
+                      WHERE T0.[Series] <>183  and T0.DocDate='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112)
+                      )A """
+    with connection.cursor() as cursor:
+        cursor.execute(count_query6)
+        invoiced = cursor.fetchone()
+
+    invoiced = invoiced[0] if invoiced else None
+
+
+
+    count_query7 = """ SELECT COUNT(*) as Rejected FROM (
+                       SELECT DISTINCT T0.[DocEntry], T0.Draftentry,T0.[WddCode],T0.[DocDate],T1.[CardName], T0.[Status],  Case when T0.[Status]='W' then 'Pending' 
+                        When T0.[Status]='Y' then 'Approved' when T0.[Status]='N' then 'Rejected' When T0.[Status]='A' then 'Generated' else 'Null' end as State
+                        ,CASE WHEN LEN(T0."CreateTime") = 6 THEN LEFT(T0."CreateTime", 2) + ':' + RIGHT(LEFT(T0."CreateTime", 4),2)
+                        WHEN LEN(T0."CreateTime") = 5 THEN LEFT(T0."CreateTime",1) + ':' + RIGHT(LEFT(T0."CreateTime",3),2) 
+                        ELSE LEFT(T0."CreateTime",1) + ':' + RIGHT(T0."CreateTime",2) END AS 'Time'
+                        FROM OWDD T0 
+                        INNER JOIN ODRF T1 ON T0.[Draftentry]=T1.[DocEntry]
+                        WHERE T0.[CreateDate]='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112) 
+                        and  T0.[ObjType] =17 
+                        and T0.[Status] = 'N')A """
+    with connection.cursor() as cursor:
+        cursor.execute(count_query7)
+        Rejected = cursor.fetchone()
+
+    Rejected = Rejected[0] if Rejected else None
+
+
    
+
+
+
 
     # Calculate counts
     # docnum_count = len(set(row[1] for row in result_set))  # Assuming the 2nd column is 'DocNum' 'docnum_count': docnum_count, 'quantity_count': quantity_count
     # quantity_count = sum(int(row[12]) for row in result_set)    # Assuming the 13th column is 'Quantity'
     # Assuming the 13th column is 'Quantity'
 
-    return render(request, 'analysis/count.html', {'data_to_display': data_to_display})
+    return render(request, 'analysis/count.html', {'data_to_display': data_to_display, 'not_approved':  not_approved, 'approved': approved, 'pending': pending, 'picking': picking, 'Picked': Picked, 'Rejected': Rejected, 'invoiced':invoiced})
 
 
 
