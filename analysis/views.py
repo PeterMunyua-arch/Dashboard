@@ -1,3 +1,4 @@
+from errno import EINPROGRESS
 from itertools import count
 from django.shortcuts import render
 # import mysql.connector
@@ -117,7 +118,7 @@ def view(request):
     connection = connect_to_database(server, database, uid, pwd, trusted_connection)
     with connection.cursor() as cursor:
         # Execute the stored procedure with parameters
-        cursor.execute(" exec PTL_Order_Tracker_Report '20231213', '20231213' ")
+        cursor.execute(" exec PTL_Order_Tracker_Report '20240114', '20240115' ")
 
         # Fetch the results from the stored procedure
         result_set = cursor.fetchall()
@@ -128,21 +129,22 @@ def view(request):
     data_to_display = [
         
         {
-            'Order_Date': row[11].strftime("%Y-%m-%d") if row[11] else None,       # Assuming the 5th column is 'Customer Name'
+            'Order_Date': row[11].strftime("%Y-%m-%d") if row[11] is not None else 'Inprogress',       # Assuming the 5th column is 'Customer Name'
             'Order_No': row[0],     # Assuming the 15th column is 'Invoice No'
             'Customer_Name': row[4],        # Assuming the 4th column is 'SO Posting Date'
             'Time_OrderReceived': row[6],
             'Posting_Time': row[12],
             'Created_By': row[10],
-            'Delivery_No': row[14],
-            'Delivery_DateTime': row[16],
-            'Invoice_No': row[19],
-            'Invoice_Date': row[20].strftime("%Y-%m-%d") if row[20] else None,
-            'Invoice_Time': row[22],
-            'Percentage_Supplied': f"{round(row[9], 2)}%"
+            'Delivery_No': row[14] if row[14] is not None else 'Inprogress',
+            'Delivery_DateTime': row[16] if row[16] is not None else 'Inprogress',
+            'Invoice_No': row[19] if row[19] is not None else 'Inprogress',
+            'Invoice_Date': row[20].strftime("%Y-%m-%d") if row[20] is not None else 'Inprogress',
+            'Invoice_Time': row[22] if row[22] is not None else 'Inprogress',
+            'Percentage_Supplied': f"{round(row[9] * 100, 0)}%"
                               # Assuming the 13th column is 'Quantity'
         }
-        for row in result_set
+        
+        for row in result_set if round(row[9] * 100, 0) != 100
         
     ]
 
@@ -154,7 +156,7 @@ def view(request):
                     ELSE LEFT(T0."CreateTime",1) + ':' + RIGHT(T0."CreateTime",2) END AS 'Time'
                     FROM OWDD T0 
                     INNER JOIN ODRF T1 ON T0.[Draftentry]=T1.[DocEntry]
-                    WHERE T0.[CreateDate]='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112) 
+                    WHERE T0.[CreateDate]= CONVERT(varchar(8), GETDATE(), 112) 
                     and  T0.[ObjType] =17 
                     and T0.[Status] = 'Y')A """
     with connection.cursor() as cursor:
@@ -171,7 +173,7 @@ def view(request):
                    ELSE LEFT(T0."CreateTime",1) + ':' + RIGHT(T0."CreateTime",2) END AS 'Time'
                    FROM OWDD T0 
                    INNER JOIN ODRF T1 ON T0.[Draftentry]=T1.[DocEntry]
-                   WHERE T0.[CreateDate]='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112) 
+                   WHERE T0.[CreateDate]= CONVERT(varchar(8), GETDATE(), 112) 
                    and  T0.[ObjType] =17 
                    and T0.[Status] = 'W')A """
     with connection.cursor() as cursor:
@@ -184,8 +186,8 @@ def view(request):
 
     count_query3 = """ SELECT COUNT([Order Number])[picking] from 
                    (SELECT DISTINCT T0.[DocNum][Order Number]
-                   FROM ODLN T0  
-                   WHERE T0.[Series] not in (216,205,192) and T0.DocStatus='o' and  T0.DocDate='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112)
+                   FROM ORDR T0  
+                   WHERE T0.[Series] not in (216,205,192) and T0.DocStatus='o' and  T0.DocDate= CONVERT(varchar(8), GETDATE(), 112)
                    )A """
     with connection.cursor() as cursor:
         cursor.execute(count_query3)
@@ -198,7 +200,7 @@ def view(request):
                    (SELECT DISTINCT T0.[DocNum][Order Number]
                     FROM ODLN T0  
 
-                    WHERE T0.[Series] not in (216,205,192) and T0.DocStatus='c' and  T0.DocDate='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112)
+                    WHERE T0.[Series] not in (216,205,192) and T0.DocStatus='c' and  T0.DocDate= CONVERT(varchar(8), GETDATE(), 112)
                    )A """
     with connection.cursor() as cursor:
         cursor.execute(count_query4)
@@ -207,27 +209,31 @@ def view(request):
     Picked = Picked[0] if Picked else None
 
 
-    count_query5 = """ SELECT SUM([Not Invoiced])[Pending Invoice] FROM (
-                   SELECT COUNT([Order Number])[Not Invoiced] from 
-                   (
-                   SELECT DISTINCT T0.[DocNum][Order Number]
-                   FROM ORDR T0  
+    count_query5 = """ SELECT
+    CASE
+        WHEN SUM([Open invoices]) < 0 THEN 0
+        ELSE SUM([Open invoices])
+    END AS [Pending Invoice]
+FROM (
+    SELECT
+        COUNT([Order Number]) AS [Open invoices]
+    FROM (
+        SELECT DISTINCT T0.[DocNum] AS [Order Number]
+        FROM OINV T0  
+        WHERE T0.[Series] <> 183 AND T0.DocDate = CONVERT(varchar(8), GETDATE(), 112)
+    ) A
 
-                   WHERE T0.[Series] not in (216,205,192) and T0.DocStatus='o' and  T0.DocDate='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112)
-                   )A
+    UNION ALL
 
-
-                  UNION ALL
-
-                  SELECT COUNT([Order Number])[Open invoices] from 
-                  (
-                  SELECT DISTINCT T0.[DocNum][Order Number]
-                  FROM OINV T0  
-
-                  WHERE T0.[Series] <>183  and T0.DocDate='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112)
-                  )A
-
-                  )M """
+    SELECT
+        -COUNT([Order Number]) AS [picked]
+    FROM (
+        SELECT DISTINCT T0.[DocNum] AS [Order Number]
+        FROM ODLN T0  
+        WHERE T0.[Series] NOT IN (216, 205, 192) AND T0.DocStatus = 'c' AND T0.DocDate = CONVERT(varchar(8), GETDATE(), 112)
+    ) A
+) M;
+ """
     with connection.cursor() as cursor:
         cursor.execute(count_query5)
         pending = cursor.fetchone()
@@ -239,7 +245,7 @@ def view(request):
                       SELECT DISTINCT T0.[DocNum][Order Number]
                       FROM OINV T0  
 
-                      WHERE T0.[Series] <>183  and T0.DocDate='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112)
+                      WHERE T0.[Series] <>183  and T0.DocDate= CONVERT(varchar(8), GETDATE(), 112)
                       )A """
     with connection.cursor() as cursor:
         cursor.execute(count_query6)
@@ -257,7 +263,7 @@ def view(request):
                         ELSE LEFT(T0."CreateTime",1) + ':' + RIGHT(T0."CreateTime",2) END AS 'Time'
                         FROM OWDD T0 
                         INNER JOIN ODRF T1 ON T0.[Draftentry]=T1.[DocEntry]
-                        WHERE T0.[CreateDate]='20231213' ---UNCOMMENT ON GO LIVE CONVERT(varchar(8), GETDATE(), 112) 
+                        WHERE T0.[CreateDate]=CONVERT(varchar(8), GETDATE(), 112) 
                         and  T0.[ObjType] =17 
                         and T0.[Status] = 'N')A """
     with connection.cursor() as cursor:

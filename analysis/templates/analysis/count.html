@@ -1,102 +1,154 @@
+
 <!-- your_template.html -->
 <html>
+
 <head>
-    <title>Your Template</title>
-
+    <title>Analysis Dashboard</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: whitesmoke;
+            margin: 0;
+        }
+
         header {
-        display: flex;
-        flex-direction: row;
-        justify-content: flex-start;
-        align-items: center;
-        height: 20vh;
-        margin-left: 0px;
-        align-content: center;
-    }
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #333;
+            padding: 10px 20px;
+            color: white;
+        }
 
-    .box {
-        margin: 10px;
-        width: 200px;
-        text-align: center;
-        height: 150px;
-    }
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+            padding: 20px;
+        }
 
-    table {
-        align-items: center;
-        margin: 10;
-        padding: 0%;
-        border-collapse:collapse ;
-        
-    }
+        .box {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin: 10px;
+            min-width: 200px;
+            text-align: center;
+            transition: transform 0.3s ease-in-out;
+            cursor: pointer;
+        }
 
-    td {
-        padding: 5px;
-    }
+        .box:hover {
+            transform: scale(1.05);
+        }
+
+        table {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            border-radius: 8px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #333;
+            color: white;
+        }
+
+        tbody tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .numbers {
+            font-size: 50px; /* Adjust the font size as needed */
+            align-items: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .dashboard {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .box {
+                min-width: 100%;
+                margin: 10px 0;
+            }
+        }
     </style>
-
-
-
 </head>
+
 <body>
 
     <header>
-        <!-- Display counts in the provided HTML structure -->
-        
-<div class="box" style="background-color: rgb(243, 128, 52); font-size: 12px;">
-    <h1>NOT APDD  <br> <br> </h1>
-    <div style="font-size: 18px;"><h1> {{ not_approved }} </h1></div>
-</div>
-
-<div class="box" style="background-color: rgb(134, 237, 170); font-size: 12px;">
-    <h1>APPROVED ORDERS <br>  </h1>
-    <div style="font-size: 18px;"><h1> {{ approved }} </h1></div>
-</div>
-
-<div class="box" style="background-color: rgb(219, 180, 98); font-size: 12px;">
-    <h1>PICKING <br> <br> </h1>
-    <div style="font-size: 18px;"><h1>{{ picking }}</h1></div>
-</div>
-
-<div class="box" style="background-color: rgb(134, 237, 170); font-size: 12px;">
-    <h1> PICKED <br> <br>  </h1>
-    <div style="font-size: 18px;"><h1> {{ Picked }} </h1></div>
-</div>
-
-<div class="box" style="background-color: rgb(219, 180, 98); font-size: 12px;">
-    <h1>PENDING INVOCING <br>  </h1>
-    <div style="font-size: 18px;"><h1>{{ pending }}</h1></div>
-</div>
-
-<div class="box" style="background-color: rgb(134, 237, 170); font-size: 12px;">
-    <h1>INVOICED <br> <br> </h1>
-    <div style="font-size: 18px;"><h1>{{ invoiced }}</h1></div>
-</div>
-
-<div class="box" style="background-color: rgb(225, 16, 19); font-size: 12px;">
-    <h1>REJECTED <br> <br></h1>
-    <div style="font-size: 18px;"><h1> {{ Rejected }} </h1></div>
-</div>
-
+        <h1>Telesales Analysis </h1>
+        <!-- Add any additional header information here -->
     </header>
-<br>
-<br>
 
-    <div  style="align-items: center; display: flex;">
+    <div class="dashboard">
+        <!-- Dashboard boxes with real-time data -->
+        <div class="box" style="background-color: #ffb834;">
+            <h2>NOT APPROVED</h2>
+            <div class="numbers">{{ not_approved }}</div>
+        </div>
+
+        <div class="box" style="background-color: #65f8f8;">
+            <h2>APPROVED ORDERS</h2>
+            <div class="numbers">{{ approved }}</div>
+        </div>
+
+        <div class="box" style="background-color: rgb(219, 180, 98);">
+            <h2>PICKING</h2>
+            <div class="numbers">{{ picking }}</div>
+        </div>
+
+        <div class="box" style="background-color: #87f594;">
+            <h2>PICKED</h2>
+            <div class="numbers">{{ Picked }}</div>
+        </div>
+
+        <div class="box" style="background-color: rgb(219, 180, 98);">
+            <h2>PENDING INVOCING</h2>
+            <div class="numbers">{{ pending }}</div>
+        </div>
+
+        <div class="box" style="background-color: #87f594;">
+            <h2>INVOICED</h2>
+            <div class="numbers">{{ invoiced }}</div>
+        </div>
+
+        <div class="box" style="background-color: #dc3939;">
+            <h2>REJECTED</h2>
+            <div class="numbers">{{ Rejected }}</div>
+        </div>
+    </div>
+
+    <!-- Table displaying detailed information -->
+    <div style="padding: 20px;">
         <table border="1">
             <thead>
                 <tr>
-                    <th>Order Dated</th>
-                    <th>Order No.</th>
+                    <th>Order Date</th>
+                    <th> Order  No. </th>
                     <th>Customer Name</th>
                     <th>Time Order Received</th>
                     <th>Posting Time</th>
                     <th>Created By</th>
                     <th>Delivery No.</th>
-                    <th>Delivery DateTime</th>
+                    <th>Time</th>
                     <th>Invoice No.</th>
                     <th>Invoice Date</th>
                     <th>Invoice Time</th>
-                    <th>% Supplied</th>
+                    <th style="align-items: center;">% Supplied</th>
                 </tr>
             </thead>
             <tbody>
@@ -120,11 +172,14 @@
         </table>
     </div>
 
-    <td>{{ data.customer_name }}</td>
-                        <td>{{ data.invoice_number }}</td>
-                        <td>{{ data.posting_date }}</td>
-                        <td>{{ data.quantity }}</td>
+    
+    <script>
+        setInterval(function() {
+            location.reload();
+        }, 5000);
+    </script>
 
     
 </body>
 </html>
+
