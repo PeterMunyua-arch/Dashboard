@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-@&o+88!=8l98xvi4=&v5f4n&kg#b9^sec3po+o6ebjk$sk-+5(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['vxqdmg-8001.csb.app', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['10.10.14.110']
 
 
 # Application definition
