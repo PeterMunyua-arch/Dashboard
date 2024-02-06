@@ -9,7 +9,7 @@ from asgiref.sync import async_to_sync
 import datetime
 
 def connect_to_database(server, database, uid, pwd, trusted_connection=False):
-    connection_string = f"Driver={{SQL Server}};Server={server};Database={database};UID={uid};PWD={pwd};Trusted_Connection=no;"
+    connection_string = f"Driver={{ODCB Driver 18 for SQL Server}};Server={server};Database={database};UID={uid};PWD={pwd};Trusted_Connection=no;"
     connection = pyodbc.connect(connection_string)
     return connection
 
