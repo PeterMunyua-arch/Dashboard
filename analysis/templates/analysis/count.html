@@ -1,9 +1,9 @@
-
+{% load static %}
 <!-- your_template.html -->
 <html>
 
 <head>
-    <title>Analysis Dashboard</title>
+    <title>Telesales Dashboard</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,12 +12,19 @@
         }
 
         header {
+            text-align: center;
             display: flex;
             justify-content: space-between;
             align-items: center;
             background-color: #333;
             padding: 10px 20px;
             color: white;
+            height: 100px;
+        }
+
+        .logo {
+            width: 10px; /* Adjust width as needed */
+            height: 10px; /* Auto height to maintain aspect ratio */
         }
 
         .dashboard {
@@ -29,12 +36,14 @@
         }
 
         .box {
+            width: calc((100% - 140px) / 10); /* Adjust the width to fit 7 boxes in one row */
+            height: 130px; /* Set the desired height for the boxes *//* Adjust the width to fit 7 boxes in one row */
             background-color: white;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
             padding: 20px;
             margin: 10px;
-            min-width: 200px;
+            min-width: 130px;
             text-align: center;
             transition: transform 0.3s ease-in-out;
             cursor: pointer;
@@ -73,7 +82,7 @@
         }
 
         /* Responsive Design */
-        @media (max-width: 600px) {
+        @media (max-width: 1200px) {
             .dashboard {
                 flex-direction: column;
                 align-items: center;
@@ -90,12 +99,21 @@
 <body>
 
     <header>
-        <h1>Telesales Analysis </h1>
+        <h1 style="font-family: sans-serif;align-self: center; padding-left: 760px;">Order Management Dashboard</h1>
+        
         <!-- Add any additional header information here -->
     </header>
 
+
+
     <div class="dashboard">
         <!-- Dashboard boxes with real-time data -->
+
+        <div class="box" style="background-color: #f50b0b; font-size: small;">
+            <h2>WEEKLY BACK~ORDERS</h2>
+            <div class="numbers">{{ weekly_ODRD }}</div>
+        </div>
+
         <div class="box" style="background-color: #ffb834;">
             <h2>NOT APPROVED</h2>
             <div class="numbers">{{ not_approved }}</div>
@@ -106,28 +124,32 @@
             <div class="numbers">{{ approved }}</div>
         </div>
 
-        <div class="box" style="background-color: rgb(219, 180, 98);">
+        <div class="box" style="background-color: rgb(243, 89, 184);">
             <h2>PICKING</h2>
-            <div class="numbers">{{ picking }}</div>
+            <br> 
+            <div class="numbers"> {{ picking }}</div>
         </div>
 
-        <div class="box" style="background-color: #87f594;">
+        <div class="box" style="background-color: #52d661;">
             <h2>PICKED</h2>
-            <div class="numbers">{{ Picked }}</div>
+            <br> 
+            <div class="numbers">  {{ Picked }}</div>
         </div>
 
-        <div class="box" style="background-color: rgb(219, 180, 98);">
-            <h2>PENDING INVOCING</h2>
-            <div class="numbers">{{ pending }}</div>
+        <div class="box" style="background-color: hsl(152, 75%, 62%);">
+            <h2>PENDING INVOICING</h2>
+            <div class="numbers"> {{ pending }}</div>
         </div>
 
-        <div class="box" style="background-color: #87f594;">
+        <div class="box" style="background-color: #b183cf;">
             <h2>INVOICED</h2>
+            <br> 
             <div class="numbers">{{ invoiced }}</div>
         </div>
 
         <div class="box" style="background-color: #dc3939;">
             <h2>REJECTED</h2>
+            <br> 
             <div class="numbers">{{ Rejected }}</div>
         </div>
     </div>
@@ -144,7 +166,7 @@
                     <th>Posting Time</th>
                     <th>Created By</th>
                     <th>Delivery No.</th>
-                    <th>Time</th>
+                    <th>Delivery Time</th>
                     <th>Invoice No.</th>
                     <th>Invoice Date</th>
                     <th>Invoice Time</th>
@@ -176,8 +198,10 @@
     <script>
         setInterval(function() {
             location.reload();
-        }, 5000);
+        }, 60000);
     </script>
+
+    
 
     
 </body>
